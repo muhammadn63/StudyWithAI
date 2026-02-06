@@ -5,7 +5,9 @@
     <title>Login - StudyWithAI</title>
 </head>
 <body>
+
 <h2>Login</h2>
+
 <form id="loginForm">
     <input type="email" id="email" placeholder="Email" required /><br />
     <input type="password" id="password" placeholder="Password" required /><br />
@@ -16,10 +18,15 @@
 
 <script>
     const form = document.getElementById("loginForm");
+
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
+
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
+        const message = document.getElementById("message");
+
+        message.innerText = "Logging in...";
 
         const res = await fetch("/api/auth/login", {
             method: "POST",
@@ -28,8 +35,16 @@
         });
 
         const data = await res.json();
-        document.getElementById("message").innerText = data.message + (data.username ? " - " + data.username : "");
+        message.innerText = data.message;
+
+        // ✅ Redirect on success
+        if (res.ok) {
+            setTimeout(() => {
+                window.location.href = "/dashboard.html";
+            }, 1000);
+        }
     });
 </script>
+
 </body>
 </html>

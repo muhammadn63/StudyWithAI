@@ -8,9 +8,7 @@
     background: #f4f8ff;
     color: #1f2b3d;
   }
-  
-  /* NAVBAR */
-  
+    
   .navbar {
     background: white;
     padding: 22px 60px;
@@ -33,9 +31,7 @@
   .nav-actions a {
     margin-left: 12px;
   }
-  
-  /* BUTTONS */
-  
+    
   .btn-primary {
     background: #4f7cff;
     color: white;
@@ -57,9 +53,7 @@
   .big {
     font-size: 18px;
   }
-  
-  /* HERO */
-  
+    
   .hero {
     display: flex;
     justify-content: space-between;
@@ -86,9 +80,7 @@
     max-width: 380px;
     width: 100%;
   }
-  
-  /* FEATURES */
-  
+    
   .features {
     display: flex;
     justify-content: center;
@@ -107,9 +99,7 @@
   .feature-card h3 {
     margin-top: 0;
   }
-  
-  /* RESPONSIVE */
-  
+    
   @media (max-width: 900px) {
     .hero {
       flex-direction: column;

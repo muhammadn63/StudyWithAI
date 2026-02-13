@@ -1,21 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard - StudyWithAI</title>
+  <meta charset="UTF-8" />
+  <title>Dashboard - StudyWithAI</title>
+  <link rel="stylesheet" href="/css/main.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f7fb;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    .logout-btn {
+      background: #e5e7eb;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+
+    .container {
+      padding: 40px;
+    }
+
+    .welcome {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .card input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-top: 15px;
+      margin-bottom: 15px;
+    }
+
+    .card button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .flashcards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .flashcard-box {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      height: 120px;
+    }
+
+  </style>
 </head>
 <body>
 
-<h1>StudyWithAI Dashboard 📊</h1>
-<p>You are logged in.</p>
+<header>
+  <div class="logo">StudyWithAI</div>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</header>
 
-<button onclick="logout()">Logout</button>
+<div class="container">
+
+  <div class="welcome">
+    Welcome Back, Numan!
+  </div>
+
+  <div class="card">
+    <div style="width: 60%;">
+      <h2>Generate Flashcards</h2>
+      <p>Create custom flashcards powered by AI to help you study any topic.</p>
+
+      <input type="text" placeholder="Enter a topic to generate flashcards..." />
+      <button>Generate Flashcards</button>
+    </div>
+
+    <div>
+      🤖
+    </div>
+  </div>
+
+  <div class="section-title">My Flashcards</div>
+
+  <div class="flashcards-grid">
+    <div class="flashcard-box">
+      My Flashcards
+    </div>
+
+    <div class="flashcard-box">
+      Recently Generated
+    </div>
+  </div>
+
+</div>
 
 <script>
-    function logout() {
-        window.location.href = "/login.html";
-    }
+function logout() {
+  window.location.href = "/login.html";
+}
 </script>
-
 </body>
 </html>

@@ -2,19 +2,16 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 
-// SIGNUP
 router.post("/signup", async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
-        console.log("Signup request body:", req.body); // Added logging
+        console.log("Signup request body:", req.body); 
 
-        // Basic validation
         if (!username || !email || !password) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        // Check if user exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: "Email already registered" });
@@ -25,17 +22,16 @@ router.post("/signup", async (req, res) => {
 
         res.status(201).json({ message: "User created successfully" });
     } catch (err) {
-        console.error("Error in /signup:", err); // Detailed console log
-        res.status(500).json({ message: "Server error", error: err.message }); // Return error message
+        console.error("Error in /signup:", err); 
+        res.status(500).json({ message: "Server error", error: err.message }); 
     }
 });
 
-// LOGIN
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        console.log("Login request body:", req.body); // Added logging
+        console.log("Login request body:", req.body); 
 
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password required" });
@@ -53,7 +49,7 @@ router.post("/login", async (req, res) => {
 
         res.json({ message: "Logged in successfully", username: user.username });
     } catch (err) {
-        console.error("Error in /login:", err); // Detailed console log
+        console.error("Error in /login:", err); 
         res.status(500).json({ message: "Server error", error: err.message }); // Return error message
     }
 });

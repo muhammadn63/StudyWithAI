@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Dashboard - StudyWithAI</title>
+<link rel="stylesheet" href="/css/main.css" />
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f7fb;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.logout-btn {
+  background: #e5e7eb;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.container {
+  padding: 40px;
+}
+
+.welcome {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.card input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.card button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.flashcards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.flashcard-box {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+#recentTopics {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#recentTopics li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  background: #f1f5f9;
+  transition: 0.2s;
+}
+
+#recentTopics li:hover {
+  background: #2563eb;
+  color: white;
+}
+
+#flashcardContainer {
+  height: 480px;
+  display: flex;
+}
+
+.flashcard-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: white;
+}
+
+#flashcardContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.6;
+  background: #f9fafb;
+  white-space: pre-wrap;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#cardCounter {
+  text-align: center;
+  padding: 15px;
+  font-size: 14px;
+  color: #6b7280;
+  background: #f1f5f9;
+}
+
+#navButtons {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  padding: 25px;
+  background: white;
+}
+
+#prevBtn, #nextBtn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 14px 30px;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#prevBtn:hover, #nextBtn:hover {
+  background: #1d4ed8;
+  transform: translateY(-2px);
+}
+
+.flashcard-slide-left {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+.flashcard-slide-right {
+  transform: translateX(20px);
+  opacity: 0;
+}
+
+.dashboard-logo img {
+  width: 260px;   /* adjust freely */
+  height: auto;
+}
+
+.quiz-card button {
+  background: #111827;
+}
+
+.quiz-card button:hover {
+  background: #000;
+}
+
+.quiz-card {
+  margin-top: 60px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">StudyWithAI</div>
+<button class="logout-btn" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+
+<div class="welcome">Welcome 👋</div>
+
+<div class="card">
+<div style="width: 60%;">
+<h2>Generate Flashcards</h2>
+<p>Create custom flashcards powered by AI to help you study any topic.</p>
+
+<input id="topicInput" type="text" placeholder="Enter a topic..." />
+<button id="generateBtn">Generate Flashcards</button>
+</div>
+
+<div class="dashboard-logo">
+  <img src="/images/hero.png" alt="StudyWithAI Logo" />
+</div>
+</div>
+
+<div class="section-title">AI Generated Flashcards</div>
+
+<div class="flashcards-grid">
+
+<div class="flashcard-box" style="padding:25px;">
+<h3 style="margin-top:0;">Recently Generated</h3>
+<ul id="recentTopics"></ul>
+</div>
+
+<div class="flashcard-box" id="flashcardContainer">
+  <div class="flashcard-card">
+
+    <div id="flashcardContent">
+      Generate flashcards to begin.
+    </div>
+
+    <div id="cardCounter"></div>
+
+    <div id="navButtons" style="display:none;">
+      <button id="prevBtn">⬅ Prev</button>
+      <button id="nextBtn">Next ➡</button>
+    </div>
+
+  </div>
+</div>
+
+</div>
+
+<div class="card quiz-card">
+  <div style="width: 60%;">
+    <h2>Quiz Yourself 🧠</h2>
+    <p>Challenge yourself with AI-generated multiple choice quizzes based on any topic you choose.</p>
+
+    <input id="quizTopicInput" type="text" placeholder="Enter a topic..." />
+    <button id="startQuizBtn">Start Quiz</button>
+  </div>
+
+  <div class="dashboard-logo">
+    <img src="/images/hero.png" alt="Quiz Image" />
+  </div>
+</div>
+
+</div>
+
+<script>
+  async function loadFlashcardHistory() {
+  try {
+    const res = await fetch("/api/ai/flashcards/history", {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token")
+      }
+    });
+
+    const data = await res.json();
+    recentTopics = data;
+    renderRecentTopicsFromDB();
+
+  } catch (err) {
+    console.log("Failed to load history");
+  }
+}
+function logout() {
+  window.location.href = "/login.html";
+}
+
+const generateBtn = document.getElementById("generateBtn");
+const topicInput = document.getElementById("topicInput");
+const flashcardContent = document.getElementById("flashcardContent");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const navButtons = document.getElementById("navButtons");
+const cardCounter = document.getElementById("cardCounter");
+const recentTopicsList = document.getElementById("recentTopics");
+
+let flashcards = [];
+let currentIndex = 0;
+let recentTopics = [];
+
+function renderRecentTopicsFromDB() {
+  recentTopicsList.innerHTML = "";
+
+  recentTopics.forEach(item => {
+    const li = document.createElement("li");
+    li.innerText = item.topic;
+
+    li.addEventListener("click", () => {
+      flashcards = item.cards.map(card =>
+        "Question: " + card.question + "\n\nAnswer: " + card.answer
+      );
+      currentIndex = 0;
+      showCard(currentIndex);
+      navButtons.style.display = "flex";
+    });
+
+    const deleteBtn = document.createElement("span");
+    deleteBtn.innerText = " ❌";
+    deleteBtn.style.cursor = "pointer";
+
+    deleteBtn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      await deleteFlashcard(item._id);
+    });
+
+    li.appendChild(deleteBtn);
+    recentTopicsList.appendChild(li);
+  });
+}
+
+function showCard(index, direction = "right") {
+  if (flashcards.length === 0) return;
+
+  flashcardContent.classList.add(
+    direction === "right" ? "flashcard-slide-left" : "flashcard-slide-right"
+  );
+
+  setTimeout(() => {
+    flashcardContent.innerText = flashcards[index];
+    cardCounter.innerText = `Card ${index + 1} of ${flashcards.length}`;
+
+    flashcardContent.classList.remove("flashcard-slide-left");
+    flashcardContent.classList.remove("flashcard-slide-right");
+  }, 200);
+}
+
+prevBtn.addEventListener("click", () => {
+  if (flashcards.length === 0) return;
+  currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+  showCard(currentIndex, "left");
+});
+
+nextBtn.addEventListener("click", () => {
+  if (flashcards.length === 0) return;
+  currentIndex = (currentIndex + 1) % flashcards.length;
+  showCard(currentIndex, "right");
+});
+
+
+generateBtn.addEventListener("click", async () => {
+
+const topic = topicInput.value.trim();
+if (!topic) {
+  alert("Please enter a topic");
+  return;
+}
+
+generateBtn.disabled = true;
+generateBtn.innerText = "Generating...";
+flashcardContent.innerText = "🤖 Generating flashcards...";
+cardCounter.innerText = "";
+navButtons.style.display = "none";
+
+try {
+  const res = await fetch("/api/ai/flashcards", {
+    method: "POST",
+    headers: {
+    "Content-Type": "application/json",
+    Authorization: "Bearer " + localStorage.getItem("token")
+    },
+    body: JSON.stringify({ topic })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    flashcards = data.flashcards.map(card =>
+    "Question: " + card.question + "\n\nAnswer: " + card.answer
+    );
+
+    if (flashcards.length > 0) {
+      currentIndex = 0;
+      showCard(currentIndex);
+      navButtons.style.display = "flex";
+      await loadFlashcardHistory();
+    } else {
+      flashcardContent.innerText = "No flashcards generated.";
+    }
+
+  } else {
+    flashcardContent.innerText = "❌ AI Error";
+  }
+
+} catch (error) {
+  flashcardContent.innerText = "❌ Failed to connect to AI.";
+}
+
+generateBtn.disabled = false;
+generateBtn.innerText = "Generate Flashcards";
+
+});
+
+async function deleteFlashcard(id) {
+  await fetch("/api/ai/flashcards/" + id, {
+    method: "DELETE",
+    headers: {
+      Authorization: "Bearer " + localStorage.getItem("token")
+    }
+  });
+
+  loadFlashcardHistory();
+}
+
+const startQuizBtn = document.getElementById("startQuizBtn");
+const quizTopicInput = document.getElementById("quizTopicInput");
+
+startQuizBtn.addEventListener("click", () => {
+  const topic = quizTopicInput.value.trim();
+
+  if (!topic) {
+    alert("Please enter a topic for the quiz");
+    return;
+  }
+
+  window.location.href = `/quiz.html?topic=${encodeURIComponent(topic)}`;
+});
+loadFlashcardHistory();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Quiz - StudyWithAI</title>
+<link rel="stylesheet" href="/css/main.css" />
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f7fb;
+  margin: 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.container {
+  padding: 50px 120px;
+}
+
+.quiz-title {
+  font-size: 42px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.quiz-subtitle {
+  color: #6b7280;
+  margin-bottom: 40px;
+}
+
+.question-card {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.06);
+}
+
+.question-text {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+.option {
+  background: #f3f4f6;
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.option:hover {
+  background: #2563eb;
+  color: white;
+}
+
+.option.selected {
+  background: #111827;
+  color: white;
+}
+
+.quiz-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.progress {
+  color: #6b7280;
+}
+
+.next-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.next-btn:hover {
+  background: #1d4ed8;
+}
+
+.quit-btn {
+  background: #e5e7eb;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">StudyWithAI</div>
+<button class="quit-btn" onclick="window.location.href='/dashboard.html'">Quit Quiz</button>
+</header>
+
+<div class="container">
+
+<div id="topicTitle" class="quiz-title">Loading...</div>
+<div class="quiz-subtitle">Answer the following multiple choice questions:</div>
+
+<div class="question-card">
+  <div id="questionText" class="question-text">Loading question...</div>
+  <div id="optionsContainer"></div>
+
+  <div class="quiz-footer">
+    <div id="progressText" class="progress"></div>
+    <button id="nextBtn" class="next-btn">Next Question</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+
+if (!token) {
+  window.location.href = "/login.html";
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const topic = urlParams.get("topic");
+
+if (!topic) {
+  window.location.href = "/dashboard.html";
+}
+
+const topicTitle = document.getElementById("topicTitle");
+const questionText = document.getElementById("questionText");
+const optionsContainer = document.getElementById("optionsContainer");
+const nextBtn = document.getElementById("nextBtn");
+const progressText = document.getElementById("progressText");
+
+let quizData = [];
+let currentQuestion = 0;
+let selectedAnswer = null;
+let score = 0;
+
+topicTitle.innerText = `Quiz on ${topic}`;
+
+async function loadQuiz() {
+  try {
+    const res = await fetch("/api/ai/quiz", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + token
+      },
+      body: JSON.stringify({ topic })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      questionText.innerText = data.message || "Failed to generate quiz.";
+      return;
+    }
+
+    quizData = data.quiz;
+    renderQuestion();
+
+  } catch (err) {
+    questionText.innerText = "Server error.";
+  }
+}
+
+function renderQuestion() {
+  const questionObj = quizData[currentQuestion];
+
+  questionText.innerText = questionObj.question;
+  optionsContainer.innerHTML = "";
+  selectedAnswer = null;
+
+  progressText.innerText = `Question ${currentQuestion + 1} of ${quizData.length}`;
+
+  Object.entries(questionObj.options).forEach(([key, value]) => {
+    const div = document.createElement("div");
+    div.classList.add("option");
+    div.innerText = `${key}. ${value}`;
+
+    div.addEventListener("click", () => {
+      document.querySelectorAll(".option").forEach(opt =>
+        opt.classList.remove("selected")
+      );
+
+      div.classList.add("selected");
+      selectedAnswer = key;
+    });
+
+    optionsContainer.appendChild(div);
+  });
+}
+
+nextBtn.addEventListener("click", () => {
+  if (!selectedAnswer) {
+    alert("Please select an answer");
+    return;
+  }
+
+  const correct = quizData[currentQuestion].correct;
+
+  if (selectedAnswer === correct) {
+    score++;
+  }
+
+  currentQuestion++;
+
+  if (currentQuestion < quizData.length) {
+    renderQuestion();
+  } else {
+    showResults();
+  }
+});
+
+function showResults() {
+  questionText.innerText = `Quiz Complete! 🎉`;
+  optionsContainer.innerHTML = `
+    <h3>Your Score: ${score} / ${quizData.length}</h3>
+    <button onclick="window.location.href='/dashboard.html'" 
+      style="margin-top:20px; padding:12px 20px; border:none; border-radius:8px; background:#2563eb; color:white; cursor:pointer;">
+      Back to Dashboard
+    </button>
+  `;
+  nextBtn.style.display = "none";
+  progressText.innerText = "";
+}
+
+loadQuiz();
+</script>
+
+</body>
+</html>

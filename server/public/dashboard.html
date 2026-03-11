@@ -205,6 +205,7 @@ header {
 
 <body>
 
+<!-- Top navigation bar with logo and logout button -->
 <header>
 <div class="logo">StudyWithAI</div>
 <button class="logout-btn" onclick="logout()">Logout</button>
@@ -214,6 +215,7 @@ header {
 
 <div class="welcome">Welcome 👋</div>
 
+<!-- Flashcard generator where users enter a topic -->
 <div class="card">
 <div style="width: 60%;">
 <h2>Generate Flashcards</h2>
@@ -230,6 +232,7 @@ header {
 
 <div class="section-title">AI Generated Flashcards</div>
 
+<!-- To display generated flashcards and navigate -->
 <div class="flashcards-grid">
 
 <div class="flashcard-box" style="padding:25px;">
@@ -253,12 +256,12 @@ header {
 
   </div>
 </div>
-
 </div>
 
+<!-- Quiz generator -->
 <div class="card quiz-card">
   <div style="width: 60%;">
-    <h2>Quiz Yourself 🧠</h2>
+    <h2>Quiz Yourself </h2>
     <p>Challenge yourself with AI-generated multiple choice quizzes based on any topic you choose.</p>
 
     <input id="quizTopicInput" type="text" placeholder="Enter a topic..." />
@@ -273,6 +276,8 @@ header {
 </div>
 
 <script>
+
+  // Load previously generated flashcards from the database
   async function loadFlashcardHistory() {
   try {
     const res = await fetch("/api/ai/flashcards/history", {
@@ -289,6 +294,8 @@ header {
     console.log("Failed to load history");
   }
 }
+
+// Redirect user to login page
 function logout() {
   window.location.href = "/login.html";
 }
@@ -306,6 +313,7 @@ let flashcards = [];
 let currentIndex = 0;
 let recentTopics = [];
 
+// Display the user's previously generated flashcard topics
 function renderRecentTopicsFromDB() {
   recentTopicsList.innerHTML = "";
 
@@ -336,6 +344,7 @@ function renderRecentTopicsFromDB() {
   });
 }
 
+// Display flashcards and handle navigation between them
 function showCard(index, direction = "right") {
   if (flashcards.length === 0) return;
 
@@ -364,7 +373,7 @@ nextBtn.addEventListener("click", () => {
   showCard(currentIndex, "right");
 });
 
-
+// Generate flashcards using the AI API
 generateBtn.addEventListener("click", async () => {
 
 const topic = topicInput.value.trim();
@@ -418,6 +427,7 @@ generateBtn.innerText = "Generate Flashcards";
 
 });
 
+// Delete a saved flashcard set
 async function deleteFlashcard(id) {
   await fetch("/api/ai/flashcards/" + id, {
     method: "DELETE",
@@ -432,6 +442,7 @@ async function deleteFlashcard(id) {
 const startQuizBtn = document.getElementById("startQuizBtn");
 const quizTopicInput = document.getElementById("quizTopicInput");
 
+// Start quiz using the topic user entered
 startQuizBtn.addEventListener("click", () => {
   const topic = quizTopicInput.value.trim();
 

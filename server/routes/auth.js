@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+// Route to create a new user account and checks if all the requirments are met
 router.post("/signup", async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -26,6 +27,7 @@ router.post("/signup", async (req, res) => {
     }
 });
 
+// Route for user login and checks is everything is good
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// Schema for storing quizzes generated for a user
 const quizSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,

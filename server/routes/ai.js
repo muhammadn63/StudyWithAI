@@ -2,14 +2,17 @@ const express = require("express");
 const router = express.Router();
 const OpenAI = require("openai");
 
+// Import database to store flashcards and quizzes
 const Flashcard = require("../models/Flashcard");
 const Quiz = require("../models/Quiz");
 const authMiddleware = require("../middleware/authMiddleware");
 
+// Initialize OpenAI client using the API key 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+// This is route to generate flashcards for a given topic using AI
 router.post("/flashcards", authMiddleware, async (req, res) => {
   try {
     const { topic } = req.body;
@@ -18,6 +21,7 @@ router.post("/flashcards", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Topic is required" });
     }
 
+    // Send request to OpenAI to generate flashcards
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -51,7 +55,8 @@ Return ONLY valid JSON.
     } catch (err) {
       return res.status(500).json({ message: "Invalid AI response format" });
     }
-
+    
+    // Save generated flashcards to the database
     const newFlashcard = new Flashcard({
       user: req.user,
       topic: topic,
@@ -67,6 +72,7 @@ Return ONLY valid JSON.
   }
 });
 
+// Route to generate a quiz with multiple choice questions
 router.post("/quiz", authMiddleware, async (req, res) => {
   try {
     const { topic } = req.body;
@@ -108,6 +114,7 @@ Return ONLY valid JSON in this format:
 
     let quizData;
 
+    // Cleaning the AI responses
     try {
       const cleaned = text
         .replace(/```json/g, "")
@@ -120,7 +127,8 @@ Return ONLY valid JSON in this format:
       console.log(text);
       return res.status(500).json({ message: "Invalid AI response format" });
     }
-
+    
+    // Save quiz questions to the database
     const newQuiz = new Quiz({
       user: req.user,
       topic: topic,
@@ -149,6 +157,7 @@ router.get("/flashcards/history", authMiddleware, async (req, res) => {
   }
 });
 
+// Route to quiz history for the user
 router.get("/quiz/history", authMiddleware, async (req, res) => {
   try {
     const quizzes = await Quiz
@@ -161,6 +170,7 @@ router.get("/quiz/history", authMiddleware, async (req, res) => {
   }
 });
 
+// Route to delete a flashcard set by ID
 router.delete("/flashcards/:id", authMiddleware, async (req, res) => {
   try {
     const flashcard = await Flashcard.findOne({

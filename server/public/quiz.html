@@ -110,11 +110,13 @@ header {
 
 <body>
 
+<!-- Quiz page where Users answer AI-generated multiple choice questions -->
 <header>
 <div class="logo">StudyWithAI</div>
 <button class="quit-btn" onclick="window.location.href='/dashboard.html'">Quit Quiz</button>
 </header>
 
+<!-- Displays the quiz topic, question, and answer options -->
 <div class="container">
 
 <div id="topicTitle" class="quiz-title">Loading...</div>
@@ -159,6 +161,7 @@ let score = 0;
 
 topicTitle.innerText = `Quiz on ${topic}`;
 
+// Request quiz questions on the selected topic
 async function loadQuiz() {
   try {
     const res = await fetch("/api/ai/quiz", {
@@ -185,6 +188,7 @@ async function loadQuiz() {
   }
 }
 
+// Render the question and its answer options
 function renderQuestion() {
   const questionObj = quizData[currentQuestion];
 
@@ -233,6 +237,7 @@ nextBtn.addEventListener("click", () => {
   }
 });
 
+// Show the final quiz score after completeion
 function showResults() {
   questionText.innerText = `Quiz Complete! 🎉`;
   optionsContainer.innerHTML = `

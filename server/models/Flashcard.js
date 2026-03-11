@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// Schema for storing flashcards generated for a user
 const flashcardSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,

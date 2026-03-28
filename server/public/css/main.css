@@ -182,5 +182,20 @@
     text-decoration: none;
     font-weight: 600;
   }
+
+  #quizHistory li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #f1f5f9;
+    transition: 0.2s;
+  }
   
+  #quizHistory li:hover {
+    background: #2563eb;
+    color: white;
+  }
   

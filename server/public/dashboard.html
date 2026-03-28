@@ -272,8 +272,15 @@ header {
     <img src="/images/hero.png" alt="Quiz Image" />
   </div>
 </div>
-
 </div>
+
+<!-- Quizzes history -->
+<div class="card" style="display:block; margin-top:40px; margin-left:40px; margin-right:40px; margin-bottom:40px; border-radius:16px;">
+  <h2 style="margin-top:0; margin-bottom:20px;">Recent Quizzes</h2>
+  <div id="continueQuizContainer" style="margin-bottom:20px;"></div>
+  <ul id="quizHistory" style="list-style:none; padding:0; margin:0;"></ul>
+</div>
+
 
 <script>
 
@@ -453,7 +460,88 @@ startQuizBtn.addEventListener("click", () => {
 
   window.location.href = `/quiz.html?topic=${encodeURIComponent(topic)}`;
 });
+
+async function loadQuizHistory() {
+  try {
+    const res = await fetch("/api/ai/quiz/history", {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token")
+      }
+    });
+
+    const data = await res.json();
+
+    const quizList = document.getElementById("quizHistory");
+    const continueContainer = document.getElementById("continueQuizContainer");
+
+    quizList.innerHTML = "";
+    continueContainer.innerHTML = "";
+
+
+    data.forEach(item => {
+      const li = document.createElement("li");
+      li.style.display = "flex";
+      li.style.justifyContent = "space-between";
+      li.style.alignItems = "center";
+
+      const date = new Date(item.createdAt);
+      const now = new Date();
+      const diff = Math.floor((now - date) / 1000);
+
+      let timeText = "now";
+
+      if (diff >= 86400) {
+        const days = Math.floor(diff / 86400);
+        timeText = `${days}d ago`;
+      } else if (diff >= 3600) {
+        const hours = Math.floor(diff / 3600);
+        timeText = `${hours}h ago`;
+      } else if (diff >= 60) {
+        const mins = Math.floor(diff / 60);
+        timeText = `${mins}m ago`;
+      }
+
+      const text = document.createElement("span");
+      const scoreText = item.score !== null && item.score !== undefined
+        ? ` • ${item.score}/${item.total}`
+        : "";
+      text.innerText = `${item.topic}${scoreText} • ${timeText}`;
+
+      text.addEventListener("click", () => {
+        window.location.href = `/quiz.html?topic=${encodeURIComponent(item.topic)}`;
+      });
+
+      const deleteBtn = document.createElement("span");
+      deleteBtn.innerText = "❌";
+      deleteBtn.style.cursor = "pointer";
+      deleteBtn.style.color = "red";
+
+      deleteBtn.addEventListener("click", async (e) => {
+        e.preventDefault();        // 🔥 FIX
+        e.stopPropagation();       // 🔥 FIX
+
+        await fetch("/api/ai/quiz/" + item._id, {
+          method: "DELETE",
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token")
+          }
+        });
+
+        loadQuizHistory();
+      });
+
+      li.appendChild(text);
+      li.appendChild(deleteBtn);
+      quizList.appendChild(li);
+    });
+
+  } catch (err) {
+    console.log("Failed to load quiz history");
+  }
+}
+
 loadFlashcardHistory();
+loadQuizHistory();
 </script>
 
 </body>

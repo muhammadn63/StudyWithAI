@@ -192,4 +192,52 @@ router.delete("/flashcards/:id", authMiddleware, async (req, res) => {
   }
 });
 
+// Route to delete a quiz by ID
+router.delete("/quiz/:id", authMiddleware, async (req, res) => {
+  try {
+    console.log("DELETE HIT");
+    console.log("req.user =", req.user);
+    console.log("req.params.id =", req.params.id);
+    
+    const quiz = await Quiz.findOne({
+      _id: req.params.id,
+      user: req.user  
+    });
+
+    if (!quiz) {
+      return res.status(404).json({ message: "Quiz not found" });
+    }
+
+    await quiz.deleteOne();
+
+    res.json({ message: "Quiz deleted successfully" });
+
+  } catch (err) {
+    console.error("Delete Quiz Error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/quiz/score", authMiddleware, async (req, res) => {
+  try {
+    const { topic, score, total } = req.body;
+
+    const quiz = await Quiz.findOne({ user: req.user, topic })
+      .sort({ createdAt: -1 });
+
+    if (!quiz) {
+      return res.status(404).json({ message: "Quiz not found" });
+    }
+
+    quiz.score = score;
+    quiz.total = total;
+    await quiz.save();
+
+    res.json({ message: "Score saved" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to save score" });
+  }
+});
+
+
 module.exports = router;

@@ -254,6 +254,27 @@ header {
     </div>
   </div>
 
+  <div class="card" style="margin-top:60px;">
+    <div style="width:60%;">
+      <h2>Upload PDF</h2>
+      <p>Upload a PDF and let AI generate flashcards or a quiz from it.</p>
+      <input type="file" id="pdfFile" accept=".pdf" style="margin-top:15px;margin-bottom:15px;width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;"/>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="pdfCount" style="padding:11px 12px;border-radius:8px;border:1px solid #ddd;font-size:14px;color:#374151;background:white;">
+          <option value="5">5 cards</option>
+          <option value="10" selected>10 cards</option>
+          <option value="15">15 cards</option>
+        </select>
+        <button id="pdfFlashcardBtn" style="flex:1;">Flashcards from PDF</button>
+        <button id="pdfQuizBtn" style="flex:1;background:#111827;">Quiz from PDF</button>
+      </div>
+      <div id="pdfStatus" style="margin-top:12px;font-size:13px;color:#6b7280;"></div>
+    </div>
+    <div class="dashboard-logo">
+      <img src="/images/hero.png" alt="PDF Upload" />
+    </div>
+  </div>
+
   <div class="card quiz-card">
     <div style="width:60%;">
       <h2>Quiz Yourself</h2>
@@ -651,6 +672,71 @@ async function loadQuizCharts(filterTopic = _activeFilter) {
 
   } catch (err) { console.log("Chart error", err); }
 }
+
+document.getElementById("pdfFlashcardBtn").addEventListener("click", async () => {
+  const file = document.getElementById("pdfFile").files[0];
+  if (!file) { alert("Please select a PDF file"); return; }
+  const count = document.getElementById("pdfCount").value;
+  const status = document.getElementById("pdfStatus");
+  const btn = document.getElementById("pdfFlashcardBtn");
+  btn.disabled = true;
+  btn.innerText = "Generating...";
+  status.innerText = "Reading your PDF...";
+  try {
+    const formData = new FormData();
+    formData.append("pdf", file);
+    formData.append("count", count);
+    const res = await fetch("/api/ai/pdf/flashcards", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+      body: formData
+    });
+    const data = await res.json();
+    if (res.ok) {
+      flashcards = data.flashcards;
+      currentIndex = 0;
+      showCard(0);
+      await loadFlashcardHistory();
+      status.innerText = "Done! Scroll up to see your flashcards.";
+    } else {
+      status.innerText = "Failed: " + data.message;
+    }
+  } catch { status.innerText = "Something went wrong."; }
+  btn.disabled = false;
+  btn.innerText = "Flashcards from PDF";
+});
+
+document.getElementById("pdfQuizBtn").addEventListener("click", async () => {
+  const file = document.getElementById("pdfFile").files[0];
+  if (!file) { alert("Please select a PDF file"); return; }
+  const count = document.getElementById("pdfCount").value;
+  const status = document.getElementById("pdfStatus");
+  const btn = document.getElementById("pdfQuizBtn");
+  btn.disabled = true;
+  btn.innerText = "Generating...";
+  status.innerText = "Reading your PDF...";
+  try {
+    const formData = new FormData();
+    formData.append("pdf", file);
+    formData.append("count", count);
+    const res = await fetch("/api/ai/pdf/quiz", {
+      method: "POST",
+      headers: { Authorization: "Bearer " + localStorage.getItem("token") },
+      body: formData
+    });
+    const data = await res.json();
+    if (res.ok) {
+      status.innerText = "Quiz ready! Redirecting...";
+      setTimeout(() => {
+        window.location.href = `/quiz.html?topic=${encodeURIComponent(data.topic)}&count=${count}`;
+      }, 800);
+    } else {
+      status.innerText = "Failed: " + data.message;
+    }
+  } catch { status.innerText = "Something went wrong."; }
+  btn.disabled = false;
+  btn.innerText = "Quiz from PDF";
+});
 
 loadFlashcardHistory();
 loadQuizHistory();

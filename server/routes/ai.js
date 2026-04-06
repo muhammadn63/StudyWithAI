@@ -1,4 +1,6 @@
 const express = require("express");
+const multer = require("multer");
+const pdfParse = require("pdf-parse");
 const router = express.Router();
 const OpenAI = require("openai");
 
@@ -236,6 +238,52 @@ router.post("/quiz/score", authMiddleware, async (req, res) => {
     res.json({ message: "Score saved" });
   } catch (err) {
     res.status(500).json({ message: "Failed to save score" });
+  }
+});
+
+const upload = multer({ storage: multer.memoryStorage() });
+
+router.post("/pdf/flashcards", authMiddleware, upload.single("pdf"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No PDF uploaded" });
+    const { count = 5 } = req.body;
+    const pdfData = await pdfParse(req.file.buffer);
+    const text = pdfData.text.slice(0, 8000);
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: `Generate ${count} simple study flashcards based on this content:\n\n${text}\n\nFormat EXACTLY like this JSON:\n[{ "question": "Question text", "answer": "Answer text" }]\nReturn ONLY valid JSON.` }],
+      max_tokens: count * 150
+    });
+    const cleaned = completion.choices[0].message.content.replace(/```json|```/g, "").trim();
+    const flashcardsData = JSON.parse(cleaned);
+    const newFlashcard = new Flashcard({ user: req.user, topic: req.file.originalname.replace(".pdf", ""), cards: flashcardsData });
+    await newFlashcard.save();
+    res.json({ flashcards: flashcardsData, topic: newFlashcard.topic });
+  } catch (err) {
+    console.log("PDF flashcard error:", err);
+    res.status(500).json({ message: "Failed to generate from PDF" });
+  }
+});
+
+router.post("/pdf/quiz", authMiddleware, upload.single("pdf"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No PDF uploaded" });
+    const { count = 5 } = req.body;
+    const pdfData = await pdfParse(req.file.buffer);
+    const text = pdfData.text.slice(0, 8000);
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: `Generate ${count} multiple choice quiz questions based on this content:\n\n${text}\n\nReturn ONLY valid JSON:\n[{ "question": "Question text", "options": { "A": "Option A", "B": "Option B", "C": "Option C", "D": "Option D" }, "correct": "A" }]` }],
+      max_tokens: count * 200
+    });
+    const cleaned = completion.choices[0].message.content.replace(/```json|```/g, "").trim();
+    const quizData = JSON.parse(cleaned);
+    const newQuiz = new Quiz({ user: req.user, topic: req.file.originalname.replace(".pdf", ""), questions: quizData });
+    await newQuiz.save();
+    res.json({ quiz: quizData, topic: newQuiz.topic });
+  } catch (err) {
+    console.log("PDF quiz error:", err);
+    res.status(500).json({ message: "Failed to generate quiz from PDF" });
   }
 });
 
